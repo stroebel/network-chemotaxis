@@ -93,6 +93,13 @@ def _arc_curvatures(
     return result
 
 
+def _extend(values: np.ndarray, vmin: float, vmax: float) -> str:
+    """Colorbar arrow(s) for values outside [vmin, vmax]"""
+    below, above = values.min() < vmin, values.max() > vmax
+    return {(False, False): "neither", (True, False): "min",
+            (False, True): "max", (True, True): "both"}[(bool(below), bool(above))]
+
+
 def plot_network_density(
     node_pos: dict[NodeKey, tuple[float, float]],
     internal_nodes: list[InternalNode],
@@ -123,7 +130,8 @@ def plot_network_density(
         all_vals = np.concatenate([np.asarray(u_values[arc]) for arc in arcs])
         vmin = float(all_vals.min()) if vmin is None else vmin
         vmax = float(all_vals.max()) if vmax is None else vmax
-    norm = plt.Normalize(vmin, vmax)
+    # values outside [vmin, vmax] saturate in both colour and line width
+    norm = plt.Normalize(vmin, vmax, clip=True)
     lw_min, lw_max = lw_range
     curv = _arc_curvatures(arcs, curvature)
 
@@ -165,7 +173,8 @@ def plot_network_density(
     if title:
         ax.set_title(title)
     if colorbar:
-        fig.colorbar(lc, ax=ax)
+        all_vals = np.concatenate(colors)
+        fig.colorbar(lc, ax=ax, extend=_extend(all_vals, vmin, vmax))
     return fig, ax
 
 
@@ -184,14 +193,18 @@ def plot_density_snapshots(
     lw_range: tuple[float, float] = (1.5, 8.0),
     ncols: int = 3,
     panel_width: float = 5.0,
+    vmax: float | None = None,
 ) -> tuple[plt.Figure, np.ndarray]:
     """One panel per time row in indices, all on one colour scale with a
-    single shared colorbar"""
-    vmax = max(
+    single shared colorbar. vmax clips the scale (default: the largest u in
+    the plotted rows); larger values saturate and the colorbar gets an arrow."""
+    data_max = max(
         float((u_minus[arc][idx] + u_plus[arc][idx]).max())
         for arc in u_minus
         for idx in indices
     )
+    if vmax is None:
+        vmax = data_max
     ncols = min(ncols, len(indices))
     nrows = -(-len(indices) // ncols)
     # panels take the graph's own aspect ratio (plus room for the title), so
@@ -215,5 +228,8 @@ def plot_density_snapshots(
         ax.set_visible(False)
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(0.0, vmax))
-    fig.colorbar(sm, ax=axes.ravel().tolist(), label="$u$")
+    fig.colorbar(
+        sm, ax=axes.ravel().tolist(), label="$u$",
+        extend="max" if data_max > vmax else "neither",
+    )
     return fig, axes
