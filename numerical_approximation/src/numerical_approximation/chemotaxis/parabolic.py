@@ -31,12 +31,16 @@ class ExternalBC(NamedTuple):
 
 
 class InternalNode(NamedTuple):
-    """One internal node p
-    kappa[(i, j)] must equal kappa[(j, i)] (Kirchoffs law?)
-    for flux conservation at the node"""
+    """One internal node p, keyed by the arcs meeting at it.
+    kappa[(i, j)], i != j: phi flux coupling; must equal kappa[(j, i)] for
+    flux conservation at the node.
+    xi[(i, j)], including i == j: share of arc j's outgoing characteristic
+    sent into arc i's incoming one; sum_i xi[(i, j)] = 1 conserves mass.
+    """
 
     endpoints: list[Endpoint]
     kappa: dict[tuple[int, int], float]
+    xi: dict[tuple[int, int], float]
 
 
 def _add_row(rows, cols, vals, row_idx, col_idxs, coeffs):

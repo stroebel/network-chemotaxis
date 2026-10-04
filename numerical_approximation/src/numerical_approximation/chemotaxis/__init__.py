@@ -27,6 +27,7 @@ from .network import (
     node_outgoing_characteristics,
     step_arc_uv,
     step_network,
+    validate_network,
 )
 from .parabolic import (
     ArcPhiParams,
@@ -56,6 +57,7 @@ __all__ = [
     "node_outgoing_characteristics",
     "step_arc_uv",
     "step_network",
+    "validate_network",
     "ArcPhiParams",
     "Endpoint",
     "ExternalBC",
