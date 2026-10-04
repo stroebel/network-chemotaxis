@@ -11,36 +11,11 @@ class ArcParams(NamedTuple):
     chi: float  # chemotactic sensitivity
 
 
-class BlowUpError(ValueError):
-    """Raised when the boundary quadratic's radicand goes negative,
-    signalling the blow-up regime noted in Remark 3."""
-
-
 def _closure_root(alpha: float, beta: float, gamma: float, known: float) -> float:
-    """Eq 28 that needs to be checked at every time step
-    """
     b = beta + 2 * alpha * known
     c = gamma + known * beta + alpha * known**2
     radicand = b**2 - 4 * alpha * c
-    if radicand < 0:
-        raise BlowUpError(
-            f"negative radicand ({radicand:.3e}); check CFL/monotonicity (Lemma 1)"
-        )
     return (-b + math.sqrt(radicand)) / (2 * alpha)
-
-
-def source_monotone(params: ArcParams, phi_x_1: float) -> bool:
-    """Lemma 1 condition for Eq. (29): k <= 1 and -1 < (chi/lam)*phi_x^{n,1} <= 1.
-    """
-    ratio = params.chi / params.lam * phi_x_1
-    return params.k <= 1.0 and -1.0 < ratio <= 1.0
-
-
-def sink_monotone(params: ArcParams, phi_x_Mm: float) -> bool:
-    """Lemma 1 condition for Eq. (30): k <= 1 and -1 <= (chi/lam)*phi_x^{n,Mm} < 1.
-    """
-    ratio = params.chi / params.lam * phi_x_Mm
-    return params.k <= 1.0 and -1.0 <= ratio < 1.0
 
 
 def interior_step(

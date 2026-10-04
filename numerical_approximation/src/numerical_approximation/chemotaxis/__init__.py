@@ -8,16 +8,13 @@ their own topology/parameters/initial conditions/plots.
 
 from .hyperbolic import (
     ArcParams,
-    BlowUpError,
     interior_step,
     neumann_left_boundary_step,
     neumann_right_boundary_step,
     outgoing_left,
     outgoing_right,
-    sink_monotone,
     sink_right_boundary_step,
     source_left_boundary_step,
-    source_monotone,
 )
 from .network import (
     BoundaryKind,
@@ -45,16 +42,13 @@ from .plotting import (
 
 __all__ = [
     "ArcParams",
-    "BlowUpError",
     "interior_step",
     "neumann_left_boundary_step",
     "neumann_right_boundary_step",
     "outgoing_left",
     "outgoing_right",
-    "sink_monotone",
     "sink_right_boundary_step",
     "source_left_boundary_step",
-    "source_monotone",
     "BoundaryKind",
     "arc_mass",
     "boundary_gradient",

@@ -226,6 +226,13 @@ def validate_network(
     arcs = set(arc_params)
     owner: dict[Endpoint, str] = {}
 
+    for arc, p in arc_params.items():
+        if not np.isclose(p.h, 2 * p.k * p.lam):
+            warnings.warn(
+                f"arc {arc}: h = {p.h:g} but 2*k*lam = {2 * p.k * p.lam:g}; the scheme "
+                "assumes the CFL condition with equality on every arc"
+            )
+
     def claim(ep: Endpoint, who: str) -> None:
         if ep.arc not in arcs:
             raise ValueError(f"{who} refers to arc {ep.arc}, not in arcs {sorted(arcs)}")
@@ -294,5 +301,7 @@ def validate_network(
 
 
 def arc_mass(u_minus: np.ndarray, u_plus: np.ndarray, h: float) -> float:
-    """Total organism mass on one arc at one time row."""
-    return float((u_minus + u_plus).sum() * h)
+    """Total organism mass on one arc at one time row (trapezoidal rule over
+    the grid j = 0, ..., M+1)."""
+    u = u_minus + u_plus
+    return float(h * (u.sum() - (u[0] + u[-1]) / 2))
