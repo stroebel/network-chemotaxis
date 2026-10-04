@@ -37,6 +37,11 @@ from .parabolic import (
     Side,
     assemble_phi_system,
 )
+from .plotting import (
+    arc_endpoints,
+    plot_density_snapshots,
+    plot_network_density,
+)
 
 __all__ = [
     "ArcParams",
@@ -64,4 +69,7 @@ __all__ = [
     "InternalNode",
     "Side",
     "assemble_phi_system",
+    "arc_endpoints",
+    "plot_density_snapshots",
+    "plot_network_density",
 ]
